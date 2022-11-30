@@ -1,0 +1,22 @@
+{
+  "name": "treeedditor",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@antv/g6": "^4.7.15",
+    "axios": "^1.2.0",
+    "element-plus": "^2.2.25",
+    "vue": "^3.2.45",
+    "vue-router": "^4.1.6",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^3.2.0",
+    "vite": "^3.2.4"
+  }
+}
