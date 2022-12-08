@@ -37,17 +37,23 @@
         align-center
       >
         <span>报警组： {{ alarmList }}</span>
+
         <br />
         <a>报警可信度: {{ alarmReliability }}</a>
         <br />
         <a>报警配置: <br />{{ alarmConfig }}</a>
+        <br />
+
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="closeCenterDialogVisible('delete')"
-              >去除</el-button
+              >取消</el-button
             >
-            <el-button type="primary" @click="closeCenterDialogVisible('mod')">
-              修改
+            <el-button
+              type="primary"
+              @click="closeCenterDialogVisible('connect')"
+            >
+              关联到当前
             </el-button>
           </span>
         </template>
@@ -71,7 +77,6 @@ var centerDialogVisible = ref(false);
 var alarmList = "cluster.wise-nginx.nwise.www";
 var alarmConfig = "dhagkjhduiaksuhdkujsabn\noiaudjkisajikjds\nihsdakhdijusah";
 var alarmId = -1;
-var alarmReliability = "unreliable";
 
 var alarmListGroup = ref([
   {
@@ -97,6 +102,7 @@ var alarmListGroup = ref([
   },
 ]);
 
+var alarmReliability = "unreliable";
 const count = ref(5);
 const loading = ref(false);
 const noMore = computed(() => count.value >= alarmListGroup.value.length - 1);
@@ -127,9 +133,9 @@ const options = [
   },
 ];
 
-const getData = (url, nodeId) => {
-  console.log(url + "?nodeId=" + nodeId);
-  var urlQuest = url + "?nodeId=" + nodeId;
+const getDataAllAlarm = (url) => {
+  console.log("12u3qhuidixahsxnkjahx   kla;djklas dl oaisd lkasdjasdnlksdj");
+  var urlQuest = url;
 
   axios
     .get(urlQuest, {
@@ -150,15 +156,15 @@ const getData = (url, nodeId) => {
           alarmId: -1,
           alarmList: "",
           alarmConfig: "",
-          reliability: "unreliable",
           dependence: "strong",
+          reliability: "unreliable",
         };
         console.log(" ====== ---- ======", response.data.Data[i]);
         item.alarmList = response.data.Data[i].alertTernary;
         item.alarmConfig = response.data.Data[i].alertConfig;
-        item.dependence = response.data.Data[i].relayRelation;
-        item.alarmId = response.data.Data[i].relayAlarmId;
+        item.dependence = "弱";
         item.reliability = response.data.Data[i].reliability;
+        item.alarmId = response.data.Data[i].id;
         alarmListGroup.value.push(item);
       }
     })
@@ -168,11 +174,18 @@ const getData = (url, nodeId) => {
   console.log(" adada ", alarmListGroup);
 };
 
+const setParams = (id) => {
+  nodeId = id;
+};
+
 defineExpose({
-  getData,
+  getDataAllAlarm,
+  setParams,
 });
 
 var commitUrl = "";
+
+var nodeId = "-1";
 
 const props = defineProps({
   url: String,
@@ -195,9 +208,16 @@ const showCenterDialogVisible = (i) => {
   alarmId = alarmListGroup.value[i].alarmId;
   alarmReliability = alarmListGroup.value[i].reliability;
   console.log(centerDialogVisible);
+
+  console.log("----", nodeId);
+
   return centerDialogVisible;
 };
 const closeCenterDialogVisible = (action) => {
+  if (action == "delete") {
+    centerDialogVisible.value = false;
+    return;
+  }
   centerDialogVisible.value = false;
   console.log("====-=-=-== ", centerDialogVisible, action);
   var alarmMes = {
@@ -205,7 +225,6 @@ const closeCenterDialogVisible = (action) => {
     alarmList: "cluster.wise-nginx.nwise.www",
     alarmConfig: "dhagkjhduiaksuhdkujsabn\noiaudjkisajikjds\nihsdakhdijusah",
     dependence: "strong",
-    reliability: "unreliable",
   };
   for (var i in alarmListGroup.value) {
     console.log("12311354xn,nm,h", alarmListGroup.value[i]);
@@ -215,15 +234,15 @@ const closeCenterDialogVisible = (action) => {
     }
   }
 
-  console.log("-=0=-0=9213917838912 ", alarmMes, action);
-  commitUrl =
-    "http://10.9.228.2:8080/relayAlarm?RelayAlarmId=" + alarmMes.alarmId;
+  console.log("-=0=-0=9213917838912 ", alarmMes);
+  commitUrl = "http://10.9.228.2:8080/relayAlarm?RelayAlarmId=-1";
 
   axios
     .post(commitUrl, {
       action: action,
       data: {
-        relayAlarmId: alarmMes.alarmId,
+        functionId: parseInt(nodeId),
+        alertTernaryId: alarmMes.alarmId,
         alertTernary: alarmMes.alarmList,
         relayRelation: alarmMes.dependence,
       },
